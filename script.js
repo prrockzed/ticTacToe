@@ -15,16 +15,24 @@ const winning_combinations = [
 
 const cellElements = document.querySelectorAll('[data-cell]')
 const board = document.getElementById('board')
-const winningMessageTextElement = document.querySelectorAll('[data-winning-message-text]')
+const winningMessageElement = document.getElementById('winningMessage')
+const winningMessageTextElement = document.querySelector('[data-winning-message-text]')
+const restartButton = document.getElementById('restartButton')
 
 startGame()
+
+restartButton.addEventListener('click', startGame)
 
 function startGame() {
   oTurn = false
   cellElements.forEach(cell => {
+    cell.classList.remove(x_class)
+    cell.classList.remove(o_class)
+    cell.removeEventListener('click', handleClick)
     cell.addEventListener('click', handleClick, { once: true });
   });
   setBoardHoverClass()
+  winningMessageElement.classList.remove('show')
 }
 
 function handleClick(e) {
@@ -34,18 +42,28 @@ function handleClick(e) {
 
   if(checkWin(currentClass)) {
     endgame(false)
+  } else if (isDraw()) {
+    endgame(true)
+  } else {
+    swapTurns()
+    setBoardHoverClass()
   }
 
-  swapTurns()
-  setBoardHoverClass()
 }
 
 function endgame(draw) {
   if (draw) {
-
+    winningMessageTextElement.innerText = 'Draw!'
   } else {
     winningMessageTextElement.innerText = `${oTurn ? "O's" : "X's"} Wins!!`
   }
+  winningMessageElement.classList.add('show')
+}
+
+function isDraw() {
+  return [...cellElements].every(cell => {
+    return cell.classList.contains(x_class) || cell.classList.contains(o_class)
+  })
 }
 
 function placeMark(cell, currentClass) {
